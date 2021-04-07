@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
 
     private RequestQueue queue; //creating queue object for Volley
     double longitudeVal, latitudeVal; //stores latitude an longitude from location listener
-    TextView CityStateValue, countyValue; //will use to map onto the TextView display for the Location
+    TextView CityStateValue, countyValue, covidCasesValue, covidDeathsValue; //will use to map onto the TextView display for the Location
     LocationManager locationManager;
     LocationListener locationListener;
     ImageButton refreshButton;
@@ -63,6 +63,10 @@ public class MainActivity extends AppCompatActivity {
         CityStateValue = (TextView) findViewById(R.id.LocationCurrText);
         countyValue = (TextView) findViewById(R.id.LocationCountyDATA);
         refreshButton = (ImageButton)findViewById(R.id.refreshLocButton);
+
+        covidCasesValue = (TextView) findViewById(R.id.DataCasesValue);
+        covidDeathsValue = (TextView) findViewById(R.id.DataDeathsValue);
+
 
         //prompts the user to enable location PERMISSION for this app
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -151,6 +155,7 @@ public class MainActivity extends AppCompatActivity {
 
             queue.add(stringRequest);
 
+
             locationManager.removeUpdates(locationListener); //removes location updates once the location has changed
             // cancels the animation and returns it to the start position
             rotate.cancel();
@@ -205,6 +210,12 @@ public class MainActivity extends AppCompatActivity {
                             CityStateValue.setText(city + ", " + state);
                             countyValue.setText(" " + county);
 
+                            queue.cancelAll("CancelTag");//clears any prior requests from the queue
+                            StringRequest covid_stringRequest = getCovidDataFromCounty(state, county);
+                            covid_stringRequest.setTag("CancelTag");
+
+                            queue.add(covid_stringRequest);
+
                             // catch for the JSON parsing error
                             // and catch for "city" not resolving, and "town" instead
                         } catch (JSONException e) {
@@ -216,6 +227,12 @@ public class MainActivity extends AppCompatActivity {
                                 String state = result.getString("state");
                                 CityStateValue.setText(city +", " + state);
                                 countyValue.setText(" " + county);
+
+                                queue.cancelAll("CancelTag");//clears any prior requests from the queue
+                                StringRequest covid_stringRequest = getCovidDataFromCounty(state, county);
+                                covid_stringRequest.setTag("CancelTag");
+
+                                queue.add(covid_stringRequest);
 
                                 // catch for the JSON parsing error
                                 // and catch for "city" and "town" not resolving, and using "village" instead
@@ -229,6 +246,12 @@ public class MainActivity extends AppCompatActivity {
                                     CityStateValue.setText(city +", " + state);
                                     countyValue.setText(" " + county);
 
+                                    queue.cancelAll("CancelTag");//clears any prior requests from the queue
+                                    StringRequest covid_stringRequest = getCovidDataFromCounty(state, county);
+                                    covid_stringRequest.setTag("CancelTag");
+
+                                    queue.add(covid_stringRequest);
+
                                     // catch for the JSON parsing error
                                     // and catch for "city", "town", "village" not resolving, and using "hamlet" instead
                                 } catch (JSONException e3) {
@@ -240,6 +263,12 @@ public class MainActivity extends AppCompatActivity {
                                         String state = result.getString("state");
                                         CityStateValue.setText(city +", " + state);
                                         countyValue.setText(" " + county);
+
+                                        queue.cancelAll("CancelTag");//clears any prior requests from the queue
+                                        StringRequest covid_stringRequest = getCovidDataFromCounty(state, county);
+                                        covid_stringRequest.setTag("CancelTag");
+
+                                        queue.add(covid_stringRequest);
 
                                         // catch for the JSON parsing error
                                     } catch (JSONException e4) {
@@ -260,6 +289,55 @@ public class MainActivity extends AppCompatActivity {
                     public void onErrorResponse(VolleyError error) {
                         // display a simple message on the screen
                         Toast.makeText(getApplicationContext(), "Nominatim API is not responding", Toast.LENGTH_LONG).show();
+                    }
+                });
+    }
+
+    private StringRequest getCovidDataFromCounty(String state, final String county) { //uses Volley to send a string request to api w/ coords
+        /* ----- Breaking each piece of the api query into individual parts ----- */
+
+        final String URL_PREFIX = "http://127.0.0.1:5000/api/v1/byCounty/"; //temporary, should be able to replace with real url once have a server
+                                                                                 //for now, need to make sure that localhost is started with python script, and flask is running
+
+        String url = URL_PREFIX + state;
+
+        Log.d("reqURL", "The url is --->[" + url + "]");
+
+        // 1st param => type of method (GET/PUT/POST/PATCH/etc)
+        // 2nd param => complete url of the API
+        // 3rd param => Response.Listener -> Success procedure
+        // 4th param => Response.ErrorListener -> Error procedure
+        return new StringRequest(Request.Method.GET, url,
+                new Response.Listener<String>() {
+                    // 3rd param - method onResponse lays the code procedure of success return
+                    // SUCCESS
+                    @Override
+                    public void onResponse(String response) {
+                        // try/catch block for returned JSON data
+                        Log.d("Response", response);
+                        try {
+                            //Finds json object "address" in the query, gets the string "county" and sets the
+                            //county textview to display the county resolved from coords
+                            JSONObject result = new JSONObject(response).getJSONObject(county);
+                            String cases = result.getString("Confirmed");
+                            String deaths = result.getString("Deaths");
+                            covidCasesValue.setText(cases);
+                            covidDeathsValue.setText(deaths);
+
+                            // catch for the JSON parsing error
+                            // and catch for "city" not resolving, and "town" instead
+                        } catch (JSONException e) {
+                            Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+                        }
+                    } // public void onResponse(String response)
+                }, // Response.Listener<String>()
+                new Response.ErrorListener() {
+                    // 4th param - method onErrorResponse lays the code procedure of error return
+                    // ERROR
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // display a simple message on the screen
+                        Toast.makeText(getApplicationContext(), "Local COVID API is not responding", Toast.LENGTH_LONG).show();
                     }
                 });
     }
