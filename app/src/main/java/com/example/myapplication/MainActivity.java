@@ -26,6 +26,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -38,6 +39,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
 import java.util.Locale;
 
@@ -267,6 +271,13 @@ public class MainActivity extends AppCompatActivity {
                                         queue.cancelAll("CancelTag");//clears any prior requests from the queue
                                         StringRequest covid_stringRequest = getCovidDataFromCounty(state, county);
                                         covid_stringRequest.setTag("CancelTag");
+                                        //Set a retry policy in case of SocketTimeout & ConnectionTimeout Exceptions.
+                                        //Volley does retry for you if you have specified the policy.
+                                        //Sets retry policy to 15 seconds for this request
+                                        covid_stringRequest.setRetryPolicy(new DefaultRetryPolicy(15000,
+                                                0,
+                                                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+                                        ///////////////////////////////////////////////////////////////////////////////
 
                                         queue.add(covid_stringRequest);
 
@@ -296,12 +307,14 @@ public class MainActivity extends AppCompatActivity {
     private StringRequest getCovidDataFromCounty(String state, final String county) { //uses Volley to send a string request to api w/ coords
         /* ----- Breaking each piece of the api query into individual parts ----- */
 
-        final String URL_PREFIX = "http://127.0.0.1:5000/api/v1/byCounty/"; //temporary, should be able to replace with real url once have a server
+        final String URL_PREFIX = "http://10.0.2.2:5000/api/v1/byCounty/"; //temporary, should be able to replace with real url once have a server
                                                                                  //for now, need to make sure that localhost is started with python script, and flask is running
+                                                                                 //on the android emulator, the default localhost refers to the device, and this ip refers to the laptop's localhost
 
         String url = URL_PREFIX + state;
 
         Log.d("reqURL", "The url is --->[" + url + "]");
+
 
         // 1st param => type of method (GET/PUT/POST/PATCH/etc)
         // 2nd param => complete url of the API
@@ -318,6 +331,18 @@ public class MainActivity extends AppCompatActivity {
                         try {
                             //Finds json object "address" in the query, gets the string "county" and sets the
                             //county textview to display the county resolved from coords
+
+                            /*
+
+
+                            //Set a retry policy in case of SocketTimeout & ConnectionTimeout Exceptions.
+                            //Volley does retry for you if you have specified the policy.
+                             jsonObjRequest.setRetryPolicy(new DefaultRetryPolicy(15000,
+                             DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                             DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+
+
+                             */
                             JSONObject result = new JSONObject(response).getJSONObject(county);
                             String cases = result.getString("Confirmed");
                             String deaths = result.getString("Deaths");
