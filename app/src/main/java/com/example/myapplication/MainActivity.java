@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
 
     private RequestQueue queue; //creating queue object for Volley
     double longitudeVal, latitudeVal; //stores latitude an longitude from location listener
-    TextView CityStateValue, countyValue, covidCasesValue, covidDeathsValue; //will use to map onto the TextView display for the Location
+    TextView cityValue, stateValue, countyValue, covidCasesValue, covidDeathsValue; //will use to map onto the TextView display for the Location
     LocationManager locationManager;
     LocationListener locationListener;
     ImageButton refreshButton;
@@ -65,7 +65,9 @@ public class MainActivity extends AppCompatActivity {
         //assigns queue to be a volley request
         queue = Volley.newRequestQueue(this);
 
-        CityStateValue = (TextView) findViewById(R.id.LocationCurrText);
+        stateValue = (TextView) findViewById(R.id.locationStateCurrText);
+        cityValue = (TextView) findViewById(R.id.locationCityCurrText);
+
         countyValue = (TextView) findViewById(R.id.LocationCountyDATA);
         refreshButton = (ImageButton)findViewById(R.id.refreshLocButton);
 
@@ -211,12 +213,13 @@ public class MainActivity extends AppCompatActivity {
                             String county = result.getString("county");
                             String city = result.getString("city");
                             String state = result.getString("state");
-                            CityStateValue.setText(city + ", " + state);
+                            stateValue.setText(state);
+                            cityValue.setText(city + ", ");
                             countyValue.setText(" " + county);
 
 
                             queue.cancelAll("CancelTag");//clears any prior requests from the queue
-                            StringRequest covid_stringRequest = getCovidDataFromCounty(state, county);
+                            StringRequest covid_stringRequest = getCovidDataFromCounty(state, county.substring(0, county.indexOf(" County")));
                             covid_stringRequest.setTag("CancelTag");
                             covid_stringRequest.setRetryPolicy(new DefaultRetryPolicy(15000,
                                     0,
@@ -234,11 +237,12 @@ public class MainActivity extends AppCompatActivity {
                                 String county = result.getString("county");
                                 String city = result.getString("town"); //heres the change
                                 String state = result.getString("state");
-                                CityStateValue.setText(city +", " + state);
+                                stateValue.setText(state);
+                                cityValue.setText(city + ", ");
                                 countyValue.setText(" " + county);
 
                                 queue.cancelAll("CancelTag");//clears any prior requests from the queue
-                                StringRequest covid_stringRequest = getCovidDataFromCounty(state, county);
+                                StringRequest covid_stringRequest = getCovidDataFromCounty(state, county.substring(0, county.indexOf(" County")));
                                 covid_stringRequest.setTag("CancelTag");
                                 covid_stringRequest.setRetryPolicy(new DefaultRetryPolicy(15000,
                                         0,
@@ -255,11 +259,12 @@ public class MainActivity extends AppCompatActivity {
                                     String county = result.getString("county");
                                     String city = result.getString("village"); //heres the change
                                     String state = result.getString("state");
-                                    CityStateValue.setText(city +", " + state);
+                                    stateValue.setText(state);
+                                    cityValue.setText(city + ", ");
                                     countyValue.setText(" " + county);
 
                                     queue.cancelAll("CancelTag");//clears any prior requests from the queue
-                                    StringRequest covid_stringRequest = getCovidDataFromCounty(state, county);
+                                    StringRequest covid_stringRequest = getCovidDataFromCounty(state, county.substring(0, county.indexOf(" County")));
                                     covid_stringRequest.setTag("CancelTag");
                                     covid_stringRequest.setRetryPolicy(new DefaultRetryPolicy(15000,
                                             0,
@@ -276,12 +281,13 @@ public class MainActivity extends AppCompatActivity {
                                         String county = result.getString("county");
                                         String city = result.getString("hamlet"); //heres the change
                                         String state = result.getString("state");
-                                        CityStateValue.setText(city +", " + state);
+                                        stateValue.setText(state);
+                                        cityValue.setText(city + ", ");
                                         countyValue.setText(" " + county);
 
 
                                         queue.cancelAll("CancelTag");//clears any prior requests from the queue
-                                        StringRequest covid_stringRequest = getCovidDataFromCounty(state, county);
+                                        StringRequest covid_stringRequest = getCovidDataFromCounty(state, county.substring(0, county.indexOf(" County")));
                                         covid_stringRequest.setTag("CancelTag");
                                         //Set a retry policy in case of SocketTimeout & ConnectionTimeout Exceptions.
                                         //Volley does retry for you if you have specified the policy.
@@ -297,7 +303,37 @@ public class MainActivity extends AppCompatActivity {
 
                                         // catch for the JSON parsing error
                                     } catch (JSONException e4) {
-                                        Toast.makeText(getApplicationContext(), e4.getMessage(), Toast.LENGTH_LONG).show();
+                                        try {
+                                            JSONObject result = new JSONObject(response).getJSONObject("address");
+                                            String county = result.getString("county");
+                                            //String city = "(no value)"; //heres the change
+                                            String state = result.getString("state");
+                                            stateValue.setText(state);
+                                            if (cityValue.getText().length() <= 0) {
+                                                cityValue.setText("Unknown, ");
+                                            }
+                                            countyValue.setText(" " + county);
+
+
+                                            queue.cancelAll("CancelTag");//clears any prior requests from the queue
+                                            StringRequest covid_stringRequest = getCovidDataFromCounty(state, county.substring(0, county.indexOf(" County")));
+                                            covid_stringRequest.setTag("CancelTag");
+                                            //Set a retry policy in case of SocketTimeout & ConnectionTimeout Exceptions.
+                                            //Volley does retry for you if you have specified the policy.
+                                            //Sets retry policy to 15 seconds for this request
+                                            covid_stringRequest.setRetryPolicy(new DefaultRetryPolicy(15000,
+                                                    0,
+                                                    DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+                                            ///////////////////////////////////////////////////////////////////////////////
+
+                                            queue.add(covid_stringRequest);
+
+
+
+                                            // catch for the JSON parsing error
+                                        } catch (JSONException e5) {
+                                            Toast.makeText(getApplicationContext(), e4.getMessage(), Toast.LENGTH_LONG).show();
+                                        }
                                     }
 
                                 }
@@ -318,7 +354,7 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
-    private StringRequest getCovidDataFromCounty(String state, final String county) { //uses Volley to send a string request to api w/ coords
+    private StringRequest getCovidDataFromCounty(final String state, final String county) { //uses Volley to send a string request to api w/ coords
         /* ----- Breaking each piece of the api query into individual parts ----- */
 
         final String URL_PREFIX = "http://10.0.2.2:5000/api/v1/byCounty/"; //temporary, should be able to replace with real url once have a server
@@ -346,17 +382,7 @@ public class MainActivity extends AppCompatActivity {
                             //Finds json object "address" in the query, gets the string "county" and sets the
                             //county textview to display the county resolved from coords
 
-                            /*
 
-
-                            //Set a retry policy in case of SocketTimeout & ConnectionTimeout Exceptions.
-                            //Volley does retry for you if you have specified the policy.
-                             jsonObjRequest.setRetryPolicy(new DefaultRetryPolicy(15000,
-                             DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                             DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-
-
-                             */
                             JSONObject result = new JSONObject(response).getJSONObject(county);
                             String cases = result.getString("Confirmed");
                             String deaths = result.getString("Deaths");

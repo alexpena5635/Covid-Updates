@@ -14,17 +14,19 @@
 
 
     <TextView
-        android:id="@+id/LocationCurrText"
+        android:id="@+id/locationStateCurrText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="112dp"
-        android:layout_marginEnd="112dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="116dp"
+
         android:fontFamily="@font/volkhov"
-        android:hint="(city, state)"
-        android:paddingHorizontal="25dp"
+        android:hint="state)"
         android:textColor="#000000"
         android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/locationCityCurrText"
         app:layout_constraintTop_toBottomOf="@+id/view" />
 
     <ImageView
@@ -32,11 +34,25 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
 
-        android:layout_marginTop="96dp"
-        android:layout_marginEnd="8dp"
-        app:layout_constraintEnd_toStartOf="@+id/LocationCurrText"
+        android:layout_marginTop="100dp"
+        android:layout_marginEnd="4dp"
+        app:layout_constraintEnd_toStartOf="@+id/locationCityCurrText"
         app:layout_constraintTop_toBottomOf="@+id/view"
         app:srcCompat="@drawable/locationicon" />
+
+    <TextView
+        android:id="@+id/locationCityCurrText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="116dp"
+        android:fontFamily="@font/volkhov"
+        android:hint="(city,"
+        android:textColor="#000000"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.432"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/view" />
 
     <ImageButton
         android:id="@+id/refreshLocButton"
