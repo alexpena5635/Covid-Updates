@@ -30,6 +30,7 @@ import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
+import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
@@ -152,13 +153,12 @@ public class MainActivity extends AppCompatActivity {
             String longitude = "Longitude: " + longitudeVal;
             String latitude = "Latitude: " + latitudeVal;
 
+
             //account for state, county, and city at some point
             queue.cancelAll("CancelTag");//clears any prior requests from the queue
             StringRequest stringRequest = searchCountyFromCoordsRequest(latitudeVal + "", longitudeVal + "");//makes a string request, sending coords into function
             stringRequest.setTag("CancelTag");
-
             queue.add(stringRequest);
-
 
             locationManager.removeUpdates(locationListener); //removes location updates once the location has changed
             // cancels the animation and returns it to the start position
@@ -214,12 +214,17 @@ public class MainActivity extends AppCompatActivity {
                             CityStateValue.setText(city + ", " + state);
                             countyValue.setText(" " + county);
 
+
                             queue.cancelAll("CancelTag");//clears any prior requests from the queue
                             StringRequest covid_stringRequest = getCovidDataFromCounty(state, county);
                             covid_stringRequest.setTag("CancelTag");
+                            covid_stringRequest.setRetryPolicy(new DefaultRetryPolicy(15000,
+                                    0,
+                                    DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
 
                             queue.add(covid_stringRequest);
 
+                            
                             // catch for the JSON parsing error
                             // and catch for "city" not resolving, and "town" instead
                         } catch (JSONException e) {
@@ -235,6 +240,9 @@ public class MainActivity extends AppCompatActivity {
                                 queue.cancelAll("CancelTag");//clears any prior requests from the queue
                                 StringRequest covid_stringRequest = getCovidDataFromCounty(state, county);
                                 covid_stringRequest.setTag("CancelTag");
+                                covid_stringRequest.setRetryPolicy(new DefaultRetryPolicy(15000,
+                                        0,
+                                        DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
 
                                 queue.add(covid_stringRequest);
 
@@ -253,6 +261,9 @@ public class MainActivity extends AppCompatActivity {
                                     queue.cancelAll("CancelTag");//clears any prior requests from the queue
                                     StringRequest covid_stringRequest = getCovidDataFromCounty(state, county);
                                     covid_stringRequest.setTag("CancelTag");
+                                    covid_stringRequest.setRetryPolicy(new DefaultRetryPolicy(15000,
+                                            0,
+                                            DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
 
                                     queue.add(covid_stringRequest);
 
@@ -268,6 +279,7 @@ public class MainActivity extends AppCompatActivity {
                                         CityStateValue.setText(city +", " + state);
                                         countyValue.setText(" " + county);
 
+
                                         queue.cancelAll("CancelTag");//clears any prior requests from the queue
                                         StringRequest covid_stringRequest = getCovidDataFromCounty(state, county);
                                         covid_stringRequest.setTag("CancelTag");
@@ -280,6 +292,8 @@ public class MainActivity extends AppCompatActivity {
                                         ///////////////////////////////////////////////////////////////////////////////
 
                                         queue.add(covid_stringRequest);
+
+
 
                                         // catch for the JSON parsing error
                                     } catch (JSONException e4) {
@@ -362,7 +376,13 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         // display a simple message on the screen
-                        Toast.makeText(getApplicationContext(), "Local COVID API is not responding", Toast.LENGTH_LONG).show();
+                        if (error instanceof TimeoutError){
+                            Toast.makeText(getApplicationContext(), "Local COVID API is not responding -- timeout error", Toast.LENGTH_LONG).show();
+                        }
+                        else {
+                            Toast.makeText(getApplicationContext(), "Local COVID API is not responding", Toast.LENGTH_LONG).show();
+                        }
+
                     }
                 });
     }
