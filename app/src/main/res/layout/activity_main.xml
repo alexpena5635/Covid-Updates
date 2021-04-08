@@ -81,32 +81,6 @@
         app:layout_constraintVertical_bias="0.432" />
 
     <TextView
-        android:id="@+id/DataTestedText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:fontFamily="@font/volkhov"
-        android:text="Tested:"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.107"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/DataRecoText"
-        app:layout_constraintVertical_bias="0.204" />
-
-    <TextView
-        android:id="@+id/DataRecoValue"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:fontFamily="@font/volkhov"
-        android:hint="(n/a)"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.457"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/DataDeathsValue"
-        app:layout_constraintVertical_bias="0.196" />
-
-    <TextView
         android:id="@+id/DataCasesValue"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -118,18 +92,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.527" />
-
-    <TextView
-        android:id="@+id/DataRecoText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="204dp"
-        android:fontFamily="@font/volkhov"
-        android:text="Recovered:"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.106"
-        app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
         android:id="@+id/LocationCountyDATA"
@@ -145,19 +107,6 @@
         app:layout_constraintStart_toEndOf="@+id/DataTitleText"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.432" />
-
-    <TextView
-        android:id="@+id/DataTestedValue"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:fontFamily="@font/volkhov"
-        android:hint="(n/a)"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.457"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/DataRecoValue"
-        app:layout_constraintVertical_bias="0.202" />
 
     <TextView
         android:id="@+id/DataDeathsValue"

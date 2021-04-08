@@ -49,28 +49,39 @@ import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
-    private RequestQueue queue; //creating queue object for Volley
-    double longitudeVal, latitudeVal; //stores latitude an longitude from location listener
-    TextView cityValue, stateValue, countyValue, covidCasesValue, covidDeathsValue; //will use to map onto the TextView display for the Location
+    //Creating queue object for Volley
+    private RequestQueue queue;
+
+    //Stores latitude and longitude, which will be updated from the location listener
+    double longitudeVal, latitudeVal;
+
+    //TextViews which will be mapped to text within the app which need to be updated
+    TextView cityValue, stateValue, countyValue, covidCasesValue, covidDeathsValue;
+
+    //Object declarations for locationManager/Listener
     LocationManager locationManager;
     LocationListener locationListener;
+
+    //Button which gets mapped to the refresh Button on the main screen
+    // - Defines the rotate animation which will be played later
     ImageButton refreshButton;
     RotateAnimation rotate = new RotateAnimation(0, 360, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f); //rotate animation for refresh button
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        //Sets the current view of the app to the main activity
         setContentView(R.layout.activity_main);
 
-        //assigns queue to be a volley request
+        //assigns queue to be a new volley request
         queue = Volley.newRequestQueue(this);
 
+        //Assigns the TextView objects to their actual instances
         stateValue = (TextView) findViewById(R.id.locationStateCurrText);
         cityValue = (TextView) findViewById(R.id.locationCityCurrText);
-
         countyValue = (TextView) findViewById(R.id.LocationCountyDATA);
         refreshButton = (ImageButton)findViewById(R.id.refreshLocButton);
-
         covidCasesValue = (TextView) findViewById(R.id.DataCasesValue);
         covidDeathsValue = (TextView) findViewById(R.id.DataDeathsValue);
 
@@ -83,12 +94,15 @@ public class MainActivity extends AppCompatActivity {
             // Write you code here if permission already given.
         }
 
+        //This is the function which gets called when the refresh button is clicked
         refreshButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 10, locationListener); //requests GPS updates every 5 seconds with a distance of 10 meters using locationListener
+                //Requests GPS updates every 5 seconds with a distance of 10 meters using locationListener
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 10, locationListener);
 
-                //describes the rotation
+                //describes the rotation of the button
+                // - duration - repeat count - alpha (transparency for "greyed out" effect) - disables it so that it cannot be clicked again while rotating and checking
                 rotate.setDuration(750);
                 rotate.setFillAfter(true);
                 rotate.setRepeatCount(Animation.INFINITE); //unless we stop the button, it will rotate infinitely
@@ -98,6 +112,8 @@ public class MainActivity extends AppCompatActivity {
 
                 refreshButton.setEnabled(false); //disables the button to be clicked until a location update happens
                 refreshButton.setImageAlpha(0x3F); //acts like it greys out the refresh button
+
+                //this will continue to rotate and be "greyed out" until locationUpdates has gone through itself
             }
         });
     }
@@ -107,6 +123,7 @@ public class MainActivity extends AppCompatActivity {
     {
         super.onStart();
 
+        //Every time te app starts, it checks the location (comes into view, first time app starts is OnCreate)
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE); //initiates a new location manager
         statusCheck(locationManager);
 
@@ -116,13 +133,16 @@ public class MainActivity extends AppCompatActivity {
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 10, locationListener);
     }
 
-    public void statusCheck(LocationManager locationManager) { //function to check if the user has location turned on with entire device
-        if(!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) { //checks if gps location on device is enabled
+    //function to check if the user has location turned on with entire device
+    public void statusCheck(LocationManager locationManager) {
+        //checks if gps location on device is enabled
+        if(!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             AlertUserNoGps();
         }
     }
 
-    private void AlertUserNoGps() { //function to prompt user to turn on device gps
+    //function to prompt user to turn on device gps
+    private void AlertUserNoGps() {
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage("GPS is disabled for this app, enable it?")
                 .setCancelable(false)
@@ -146,29 +166,36 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onLocationChanged(Location loc) {
 
+            //Get the lat and long from location manager
             longitudeVal = loc.getLongitude();
             latitudeVal = loc.getLatitude();
-
-            Toast.makeText(getBaseContext(),
-                    "Location changed: Lat: " + latitudeVal + " Lng: "
-                            + longitudeVal, Toast.LENGTH_SHORT).show();
             String longitude = "Longitude: " + longitudeVal;
             String latitude = "Latitude: " + latitudeVal;
 
+            /*
+            Toast.makeText(getBaseContext(),
+                    "Location changed: Lat: " + latitudeVal + " Lng: "
+                            + longitudeVal, Toast.LENGTH_SHORT).show();
 
-            //account for state, county, and city at some point
-            queue.cancelAll("CancelTag");//clears any prior requests from the queue
+             */
+
+
+            //Clears any prior requests to the Volley queue, and then makes a call to the function
+            // to search for a county from coordinates
+            queue.cancelAll("CancelTag");
             StringRequest stringRequest = searchCountyFromCoordsRequest(latitudeVal + "", longitudeVal + "");//makes a string request, sending coords into function
             stringRequest.setTag("CancelTag");
             queue.add(stringRequest);
 
-            locationManager.removeUpdates(locationListener); //removes location updates once the location has changed
-            // cancels the animation and returns it to the start position
+            //removes location updates once the location has change
+            locationManager.removeUpdates(locationListener);
+
+            // Cancels the refresh button animation and returns it to the start position
+            // Also re-enables its usage, and un-"greys" it out (makes it usable and visible)
             rotate.cancel();
             rotate.reset();
-
-            refreshButton.setEnabled(true); //sets the refresh button to clickable again
-            refreshButton.setImageAlpha(0xFF); //sets refresh button back to original color
+            refreshButton.setEnabled(true);
+            refreshButton.setImageAlpha(0xFF);
         }
 
         @Override
@@ -181,7 +208,8 @@ public class MainActivity extends AppCompatActivity {
         public void onStatusChanged(String provider, int status, Bundle extras) {}
     }
 
-    private StringRequest searchCountyFromCoordsRequest(String latVal, String lonVal) { //uses Volley to send a string request to api w/ coords
+    //Uses Volley to send a string request to api w/ with the coordiates passed in
+    private StringRequest searchCountyFromCoordsRequest(String latVal, String lonVal) {
         /* ----- Breaking each piece of the api query into individual parts ----- */
         final String FORMAT = "format=json";
         final String ZOOM = "&zoom=18";
@@ -203,6 +231,8 @@ public class MainActivity extends AppCompatActivity {
                     // 3rd param - method onResponse lays the code procedure of success return
                     // SUCCESS
                     @Override
+                    //On a successful response to this url, this is the response sent back
+                    //For our purposes, it will be a json for the nomanitm api, and for my api as well
                     public void onResponse(String response) {
                         // try/catch block for returned JSON data
                         Log.d("Response", response);
@@ -217,10 +247,14 @@ public class MainActivity extends AppCompatActivity {
                             cityValue.setText(city + ", ");
                             countyValue.setText(" " + county);
 
-
-                            queue.cancelAll("CancelTag");//clears any prior requests from the queue
+                            //Once we know that the county was successfully parsed from the api, we can pass the county into
+                            // the getCovid.. function, which will update the covid data for that county
+                            queue.cancelAll("CancelTag");
                             StringRequest covid_stringRequest = getCovidDataFromCounty(state, county.substring(0, county.indexOf(" County")));
                             covid_stringRequest.setTag("CancelTag");
+                            //Set a retry policy in case of SocketTimeout & ConnectionTimeout Exceptions.
+                            //Volley does retry for you if you have specified the policy.
+                            //Sets retry policy to 15 seconds for this request
                             covid_stringRequest.setRetryPolicy(new DefaultRetryPolicy(15000,
                                     0,
                                     DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
@@ -228,20 +262,24 @@ public class MainActivity extends AppCompatActivity {
                             queue.add(covid_stringRequest);
 
                             
-                            // catch for the JSON parsing error
-                            // and catch for "city" not resolving, and "town" instead
+                            // Catch for "city" not resolving in the returned json, checking the smaller version "town" instead
                         } catch (JSONException e) {
 
                             try {
+                                //Finds json object "address" in the query, gets the string "county" and sets the
+                                //county textview to display the county resolved from coords
+                                // Also sets city to the json "town" instead
                                 JSONObject result = new JSONObject(response).getJSONObject("address");
                                 String county = result.getString("county");
-                                String city = result.getString("town"); //heres the change
+                                String city = result.getString("town");
                                 String state = result.getString("state");
                                 stateValue.setText(state);
                                 cityValue.setText(city + ", ");
                                 countyValue.setText(" " + county);
 
-                                queue.cancelAll("CancelTag");//clears any prior requests from the queue
+                                //Once we know that the county was successfully parsed from the api, we can pass the county into
+                                // the getCovid.. function, which will update the covid data for that county
+                                queue.cancelAll("CancelTag");
                                 StringRequest covid_stringRequest = getCovidDataFromCounty(state, county.substring(0, county.indexOf(" County")));
                                 covid_stringRequest.setTag("CancelTag");
                                 covid_stringRequest.setRetryPolicy(new DefaultRetryPolicy(15000,
@@ -250,8 +288,7 @@ public class MainActivity extends AppCompatActivity {
 
                                 queue.add(covid_stringRequest);
 
-                                // catch for the JSON parsing error
-                                // and catch for "city" and "town" not resolving, and using "village" instead
+                                // Catch for "city" and "town" not resolving, and using "village" instead
                             } catch (JSONException e2) {
 
                                 try {
@@ -263,6 +300,8 @@ public class MainActivity extends AppCompatActivity {
                                     cityValue.setText(city + ", ");
                                     countyValue.setText(" " + county);
 
+                                    //Once we know that the county was successfully parsed from the api, we can pass the county into
+                                    // the getCovid.. function, which will update the covid data for that county
                                     queue.cancelAll("CancelTag");//clears any prior requests from the queue
                                     StringRequest covid_stringRequest = getCovidDataFromCounty(state, county.substring(0, county.indexOf(" County")));
                                     covid_stringRequest.setTag("CancelTag");
@@ -285,28 +324,26 @@ public class MainActivity extends AppCompatActivity {
                                         cityValue.setText(city + ", ");
                                         countyValue.setText(" " + county);
 
-
+                                        //Once we know that the county was successfully parsed from the api, we can pass the county into
+                                        // the getCovid.. function, which will update the covid data for that county
                                         queue.cancelAll("CancelTag");//clears any prior requests from the queue
                                         StringRequest covid_stringRequest = getCovidDataFromCounty(state, county.substring(0, county.indexOf(" County")));
                                         covid_stringRequest.setTag("CancelTag");
-                                        //Set a retry policy in case of SocketTimeout & ConnectionTimeout Exceptions.
-                                        //Volley does retry for you if you have specified the policy.
-                                        //Sets retry policy to 15 seconds for this request
+
                                         covid_stringRequest.setRetryPolicy(new DefaultRetryPolicy(15000,
                                                 0,
                                                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-                                        ///////////////////////////////////////////////////////////////////////////////
 
                                         queue.add(covid_stringRequest);
 
-
-
-                                        // catch for the JSON parsing error
+                                        // Catch for ciy not resolving or any of its smaller versions
                                     } catch (JSONException e4) {
                                         try {
                                             JSONObject result = new JSONObject(response).getJSONObject("address");
                                             String county = result.getString("county");
                                             //String city = "(no value)"; //heres the change
+                                            //Here we do not update the city textview, and if it was recently some other city,
+                                            //it stays the same. But if it's the first location to show up, it will say "Unknown"
                                             String state = result.getString("state");
                                             stateValue.setText(state);
                                             if (cityValue.getText().length() <= 0) {
@@ -318,17 +355,11 @@ public class MainActivity extends AppCompatActivity {
                                             queue.cancelAll("CancelTag");//clears any prior requests from the queue
                                             StringRequest covid_stringRequest = getCovidDataFromCounty(state, county.substring(0, county.indexOf(" County")));
                                             covid_stringRequest.setTag("CancelTag");
-                                            //Set a retry policy in case of SocketTimeout & ConnectionTimeout Exceptions.
-                                            //Volley does retry for you if you have specified the policy.
-                                            //Sets retry policy to 15 seconds for this request
                                             covid_stringRequest.setRetryPolicy(new DefaultRetryPolicy(15000,
                                                     0,
                                                     DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-                                            ///////////////////////////////////////////////////////////////////////////////
 
                                             queue.add(covid_stringRequest);
-
-
 
                                             // catch for the JSON parsing error
                                         } catch (JSONException e5) {
@@ -354,8 +385,11 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
-    private StringRequest getCovidDataFromCounty(final String state, final String county) { //uses Volley to send a string request to api w/ coords
-        /* ----- Breaking each piece of the api query into individual parts ----- */
+    //Uses volley to make a request to MY api, with the county attached to it
+    //Currently, I have to run this on my localhost on my desktop, and access it through a specifc IP
+    //from the android studio code bc of the way the emulator works
+    //If I try and do this on my phone, it probably wont work!!!!
+    private StringRequest getCovidDataFromCounty(final String state, final String county) {
 
         final String URL_PREFIX = "http://10.0.2.2:5000/api/v1/byCounty/"; //temporary, should be able to replace with real url once have a server
                                                                                  //for now, need to make sure that localhost is started with python script, and flask is running
@@ -379,10 +413,8 @@ public class MainActivity extends AppCompatActivity {
                         // try/catch block for returned JSON data
                         Log.d("Response", response);
                         try {
-                            //Finds json object "address" in the query, gets the string "county" and sets the
-                            //county textview to display the county resolved from coords
-
-
+                            //Takes the response (json) and parses it for the object with the county name
+                            //Then sets the confirmed cases and deaths textview in the app, to the values from the api
                             JSONObject result = new JSONObject(response).getJSONObject(county);
                             String cases = result.getString("Confirmed");
                             String deaths = result.getString("Deaths");
