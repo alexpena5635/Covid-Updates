@@ -3,6 +3,7 @@
 import requests
 import csv
 import json 
+import os
 
 import flask;
 
@@ -147,4 +148,7 @@ def api_byCounty_ID():
 
     return send_file('Data/ID-dataF.json')
 
-app.run()
+#app.run()
+#For heroku
+port = int(os.environ.get("PORT", 5000))
+app.run(host='0.0.0.0', port=port)

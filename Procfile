@@ -1,1 +1,1 @@
-web: python CovidUpdatesApi.py
+web: gunicorn CovidUpdatesApi:app
