@@ -282,7 +282,7 @@ public class MainActivity extends AppCompatActivity {
                                 queue.cancelAll("CancelTag");
                                 StringRequest covid_stringRequest = getCovidDataFromCounty(state, county.substring(0, county.indexOf(" County")));
                                 covid_stringRequest.setTag("CancelTag");
-                                covid_stringRequest.setRetryPolicy(new DefaultRetryPolicy(15000,
+                                covid_stringRequest.setRetryPolicy(new DefaultRetryPolicy(25000,
                                         0,
                                         DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
 
@@ -305,7 +305,7 @@ public class MainActivity extends AppCompatActivity {
                                     queue.cancelAll("CancelTag");//clears any prior requests from the queue
                                     StringRequest covid_stringRequest = getCovidDataFromCounty(state, county.substring(0, county.indexOf(" County")));
                                     covid_stringRequest.setTag("CancelTag");
-                                    covid_stringRequest.setRetryPolicy(new DefaultRetryPolicy(15000,
+                                    covid_stringRequest.setRetryPolicy(new DefaultRetryPolicy(25000,
                                             0,
                                             DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
 
@@ -330,7 +330,7 @@ public class MainActivity extends AppCompatActivity {
                                         StringRequest covid_stringRequest = getCovidDataFromCounty(state, county.substring(0, county.indexOf(" County")));
                                         covid_stringRequest.setTag("CancelTag");
 
-                                        covid_stringRequest.setRetryPolicy(new DefaultRetryPolicy(15000,
+                                        covid_stringRequest.setRetryPolicy(new DefaultRetryPolicy(25000,
                                                 0,
                                                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
 
@@ -355,7 +355,7 @@ public class MainActivity extends AppCompatActivity {
                                             queue.cancelAll("CancelTag");//clears any prior requests from the queue
                                             StringRequest covid_stringRequest = getCovidDataFromCounty(state, county.substring(0, county.indexOf(" County")));
                                             covid_stringRequest.setTag("CancelTag");
-                                            covid_stringRequest.setRetryPolicy(new DefaultRetryPolicy(15000,
+                                            covid_stringRequest.setRetryPolicy(new DefaultRetryPolicy(25000,
                                                     0,
                                                     DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
 
@@ -391,9 +391,9 @@ public class MainActivity extends AppCompatActivity {
     //If I try and do this on my phone, it probably wont work!!!!
     private StringRequest getCovidDataFromCounty(final String state, final String county) {
 
-        final String URL_PREFIX = "http://10.0.2.2:5000/api/v1/byCounty/"; //temporary, should be able to replace with real url once have a server
+        //final String URL_PREFIX = "http://10.0.2.2:5000/api/v1/byCounty/"; //temporary, should be able to replace with real url once have a server
                                                                                  //for now, need to make sure that localhost is started with python script, and flask is running
-                                                                                 //on the android emulator, the default localhost refers to the device, and this ip refers to the laptop's localhost
+        final String URL_PREFIX = "https://covidupdatesapi3.herokuapp.com/api/v1/byCounty/";      //on the android emulator, the default localhost refers to the device, and this ip refers to the laptop's localhost
 
         String url = URL_PREFIX + state;
 
