@@ -76,7 +76,7 @@ def api_byCounty_ID():
     
 
     #driver = webdriver.Chrome(execution_path=CHROMEDRIVER_PATH, chrome_options=chrome_options)
-    driver = webdriver.Chrome(chrome_options=chrome_options)
+    driver = webdriver.Chrome(executable_path=CHROMEDRIVER_PATH, chrome_options=chrome_options)
     ###############################################
 
     ## commented out for heroku only
