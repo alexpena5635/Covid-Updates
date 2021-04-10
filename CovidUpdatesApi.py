@@ -8,6 +8,8 @@ import os
 import flask;
 
 from flask import Flask, request, send_file
+from flask import Cache
+
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC, wait
@@ -17,7 +19,10 @@ from seleniumwire import webdriver
 ###### 
 
 app = flask.Flask(__name__)
-app.config["DEBUG"] = True
+#app.config["DEBUG"] = True
+#cache = Cache(config={'CACHE_TYPE': 'simple'})
+cache = Cache(config={'CACHE_TYPE': 'filesystem', 'CACHE_DIR': '/tmp'})
+cache.init_app(app)
 
 
 
@@ -51,6 +56,7 @@ def make_json(csvFilePath, jsonFilePath):
 
 
 @app.route('/api/v1/byCounty/Idaho', methods=['GET'])
+@cache.cached(timeout=43200) #cahce for 12 hours
 def api_byCounty_ID():
 
 
@@ -62,10 +68,9 @@ def api_byCounty_ID():
     # Actually Call The Function.
     # Decide the two file paths according to your  
     # computer system 
-    curpath = os.path.abspath(os.curdir)
-
-    csvFilePath = curpath + r'Data/ID-data.csv'
-    jsonFilePath = curpath + r'Data/ID-data.json'
+    
+    csvFilePath = r'Data/ID-data.csv'
+    jsonFilePath = r'Data/ID-data.json'
         ##### Setting up chrome to launch headless, setting the download path
     chrome_options = Options()
 
@@ -144,7 +149,7 @@ def api_byCounty_ID():
 
     # Write the content to a file in csv format
     # Get rid of extra junk in string, and replace literal \n with their escape characters (so it prints correctly)
-    filename = curpath + 'Data/ID-data.csv'
+    filename = 'Data/ID-data.csv'
     fcont = content.replace("b\'\\xef\\xbb\\xbf",'').replace('\\n\'', '\n').replace('\\n', '\n').replace('\\t', '\t')
     open(filename, "w").write(fcont)
 
