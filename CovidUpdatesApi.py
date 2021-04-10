@@ -9,7 +9,7 @@ import flask;
 
 from flask import Flask, request, send_file
 #from flask import Cache
-from flask_caching import Cache
+#from flask_caching import Cache
 
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -22,8 +22,8 @@ from seleniumwire import webdriver
 app = flask.Flask(__name__)
 #app.config["DEBUG"] = True
 #cache = Cache(config={'CACHE_TYPE': 'simple'})
-cache = Cache(config={'CACHE_TYPE': 'filesystem', 'CACHE_DIR': '/tmp'})
-cache.init_app(app)
+#cache = Cache(config={'CACHE_TYPE': 'filesystem', 'CACHE_DIR': '/tmp'})
+##cache.init_app(app)
 
 
 
@@ -57,7 +57,7 @@ def make_json(csvFilePath, jsonFilePath):
 
 
 @app.route('/api/v1/byCounty/Idaho', methods=['GET'])
-@cache.cached(timeout=43200) #cahce for 12 hours
+#@cache.cached(timeout=43200) #cahce for 12 hours
 def api_byCounty_ID():
 
 
