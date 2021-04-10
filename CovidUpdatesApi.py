@@ -63,7 +63,7 @@ def api_byCounty_ID():
     # Decide the two file paths according to your  
     # computer system 
     csvFilePath = r'Data/ID-data.csv'
-    jsonFilePath = r'Data/ID-dataF.json'
+    jsonFilePath = r'Data/ID-data.json'
         ##### Setting up chrome to launch headless, setting the download path
     chrome_options = Options()
 
@@ -149,7 +149,7 @@ def api_byCounty_ID():
     make_json(csvFilePath, jsonFilePath)
 
 
-    return send_file('Data/ID-dataF.json')
+    return send_file('Data/ID-data.json')
 
 #app.run()
 #For heroku
