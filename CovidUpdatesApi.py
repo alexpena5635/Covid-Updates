@@ -8,7 +8,8 @@ import os
 import flask;
 
 from flask import Flask, request, send_file
-from flask import Cache
+#from flask import Cache
+from flask_caching import Cache
 
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
