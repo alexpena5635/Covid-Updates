@@ -62,8 +62,10 @@ def api_byCounty_ID():
     # Actually Call The Function.
     # Decide the two file paths according to your  
     # computer system 
-    csvFilePath = r'Data/ID-data.csv'
-    jsonFilePath = r'Data/ID-data.json'
+    curpath = os.path.abspath(os.curdir)
+
+    csvFilePath = curpath + r'Data/ID-data.csv'
+    jsonFilePath = curpath + r'Data/ID-data.json'
         ##### Setting up chrome to launch headless, setting the download path
     chrome_options = Options()
 
@@ -142,7 +144,7 @@ def api_byCounty_ID():
 
     # Write the content to a file in csv format
     # Get rid of extra junk in string, and replace literal \n with their escape characters (so it prints correctly)
-    filename = 'Data/ID-data.csv'
+    filename = curpath + 'Data/ID-data.csv'
     fcont = content.replace("b\'\\xef\\xbb\\xbf",'').replace('\\n\'', '\n').replace('\\n', '\n').replace('\\t', '\t')
     open(filename, "w").write(fcont)
 
