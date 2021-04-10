@@ -20,7 +20,7 @@ from seleniumwire import webdriver
 ###### 
 
 app = flask.Flask(__name__)
-#app.config["DEBUG"] = True
+app.config["DEBUG"] = True
 #cache = Cache(config={'CACHE_TYPE': 'simple'})
 #cache = Cache(config={'CACHE_TYPE': 'filesystem', 'CACHE_DIR': '/tmp'})
 ##cache.init_app(app)
