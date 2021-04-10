@@ -1,1 +1,1 @@
-worker: python CovidUpdatesApi.py
+web: python CovidUpdatesApi.py
