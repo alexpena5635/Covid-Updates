@@ -5,7 +5,10 @@ import csv
 import json 
 import os
 
-import flask;
+import flask
+
+import datetime
+from datetime import datetime
 
 from flask import Flask, request, send_file
 #from flask import Cache
@@ -20,12 +23,13 @@ from seleniumwire import webdriver
 ###### 
 
 app = flask.Flask(__name__)
-app.config["DEBUG"] = True
+###############app.config["DEBUG"] = True
 #cache = Cache(config={'CACHE_TYPE': 'simple'})
 #cache = Cache(config={'CACHE_TYPE': 'filesystem', 'CACHE_DIR': '/tmp'})
 ##cache.init_app(app)
 
-
+# Global hour variable
+old_hour = -99
 
 #$env:Path += ";C:\Users\unst0\Desktop\chromeDriver" -- need to set the path variable to add this every time
 
@@ -59,6 +63,23 @@ def make_json(csvFilePath, jsonFilePath):
 @app.route('/api/v1/byCounty/Idaho', methods=['GET'])
 #@cache.cached(timeout=43200) #cahce for 12 hours
 def api_byCounty_ID():
+
+     # Get the date and then print it
+    now = datetime.now()
+    cur_hour = now.hour
+    
+    # Reference to the global varible
+    global old_hour
+
+     # Checks if the file has been returned within the same our, if not
+    #  then continue with script, else just return the file
+    if (cur_hour == old_hour):
+        print("Api has been called within the same hour, returning old file...")
+        return send_file('.Data/ID-data.json')
+
+    old_hour = cur_hour
+    
+    print("Hour is [" + str(old_hour) + "]")
 
 
     #### For Heroku only
