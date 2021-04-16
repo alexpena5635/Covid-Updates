@@ -29,7 +29,7 @@ app = flask.Flask(__name__)
 ##cache.init_app(app)
 
 # Global hour variable
-old_hour = -99
+#old_hour = -99
 
 #$env:Path += ";C:\Users\unst0\Desktop\chromeDriver" -- need to set the path variable to add this every time
 
@@ -64,23 +64,22 @@ def make_json(csvFilePath, jsonFilePath):
 #@cache.cached(timeout=43200) #cahce for 12 hours
 def api_byCounty_ID():
 
-     # Get the date and then print it
+    # Get the date and then print it
     now = datetime.now()
     cur_hour = now.hour
     
-    # Reference to the global varible
-    global old_hour
-
-     # Checks if the file has been returned within the same our, if not
+    # Checks if the file has been returned within the same our, if not
     #  then continue with script, else just return the file
-    if (cur_hour == old_hour):
-        print("Api has been called within the same hour, returning old file...")
-        return send_file('.Data/ID-data.json')
+    for line in open('.Data/lastHour.txt'):
+        old_hour = int(line)
+        if (cur_hour == old_hour):
+            print("Api has been called within the same hour, returning old file...")
+            return send_file('.Data/ID-data.json')
 
-    old_hour = cur_hour
+    with open('.Data/lastHour.txt', 'w') as lastHour:
+            lastHour.writelines(str(cur_hour))
+            print("Hour is [" + str(cur_hour) + "]")
     
-    print("Hour is [" + str(old_hour) + "]")
-
 
     #### For Heroku only
     GOOGLE_CHROME_PATH = '/app/.apt/usr/bin/google-chrome'
