@@ -70,13 +70,13 @@ def api_byCounty_ID():
     
     # Checks if the file has been returned within the same our, if not
     #  then continue with script, else just return the file
-    for line in open('.Data/lastHour.txt'):
+    for line in open('Data/lastHour.txt'):
         old_hour = int(line)
         if (cur_hour == old_hour):
             print("Api has been called within the same hour, returning old file...")
-            return send_file('.Data/ID-data.json')
+            return send_file('Data/ID-data.json')
 
-    with open('.Data/lastHour.txt', 'w') as lastHour:
+    with open('Data/lastHour.txt', 'w') as lastHour:
             lastHour.writelines(str(cur_hour))
             print("Hour is [" + str(cur_hour) + "]")
     
