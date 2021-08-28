@@ -68,19 +68,14 @@ def api_byCounty_ID():
     now = datetime.now()
     cur_hour = now.hour
     
-    # Checks if the file has been returned within the same our, if not
+    # Checks if the file has been returned within the same hour, if not
     #  then continue with script, else just return the file
     for line in open('Data/lastHour.txt'):
         old_hour = int(line)
-        if (cur_hour == old_hour):
+        if ((cur_hour == old_hour) and os.stat('Data/ID-data.json').st_size == 0):
             print("Api has been called within the same hour, returning old file...")
             return send_file('Data/ID-data.json')
-
-    with open('Data/lastHour.txt', 'w') as lastHour:
-            lastHour.writelines(str(cur_hour))
-            print("Hour is [" + str(cur_hour) + "]")
     
-
     #### For Heroku only
     GOOGLE_CHROME_PATH = '/app/.apt/usr/bin/google-chrome'
     CHROMEDRIVER_PATH = '/app/.chromedriver/bin/chromedriver'
@@ -175,7 +170,10 @@ def api_byCounty_ID():
     open(filename, "w").write(fcont)
 
     make_json(csvFilePath, jsonFilePath)
-
+    
+    with open('Data/lastHour.txt', 'w') as lastHour:
+            lastHour.writelines(str(cur_hour))
+            print("Hour is [" + str(cur_hour) + "]")
 
     return send_file('Data/ID-data.json')
 
