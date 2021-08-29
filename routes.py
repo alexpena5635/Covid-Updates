@@ -53,8 +53,10 @@ def getDataID():
     for request in driver.requests:
         try:
             #print( request.response.headers['X-Session-Id'] )
-            sesID = request.response.headers['X-Session-Id']
-            break
+            sesID = request.response.headers['x-session-id']
+
+            if(sesID.strip() != "None"): # Added this check!
+                break
         except:
             continue
 
