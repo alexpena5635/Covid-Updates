@@ -3,9 +3,9 @@ import psycopg2
 import csv
 import json 
 
-DATABASE_URL = os.environ['DATABASE_URL']
+#DATABASE_URL = os.environ['DATABASE_URL']
 
-conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+#conn = psycopg2.connect(DATABASE_URL, sslmode='require')
 
 # Takes a csv file and a primary key within; converts to json
 def makeJSON(csvFilePath, jsonFilePath): 
