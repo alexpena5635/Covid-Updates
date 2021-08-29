@@ -1,1 +1,1 @@
-web: gunicorn -t 45 -b 0.0.0.0:5000 main:app
+web: gunicorn -t 45 --bind 0.0.0.0:${PORT} main:app
