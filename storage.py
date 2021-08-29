@@ -33,6 +33,7 @@ def makeJSON(csvFilePath, jsonFilePath):
         # create a new database connection by calling the connect() function
         print("Here is the URL")
         print(DATABASE_URL)
+        
         con = psycopg2.connect(DATABASE_URL)
 
         #  create a new cursor
