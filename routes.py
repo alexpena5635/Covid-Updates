@@ -61,8 +61,9 @@ def getDataID():
     driver.quit()
 
     # Go to download url with session ID, and download csv
+    print(sesID)
     Download_url = ('https://public.tableau.com/vizql/w/DPHIdahoCOVID-19Dashboard/v/County/vudcsv/sessions/'
-        + sesID + 
+        + str(sesID) + 
         '/views/15949333231900855173_797453858498711719?'
         'showall=true&underlying_table_id=Migrated%20Data&underlying_table_caption=Full%20Data')
 
