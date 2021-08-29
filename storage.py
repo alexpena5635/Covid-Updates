@@ -27,7 +27,7 @@ def makeJSON(csvFilePath, jsonFilePath):
         jsonf.write(json.dumps(data, indent=4))
 
     # read database connection url from the enivron variable we just set.
-    DATABASE_URL = os.environ.get('DATABASE_URL')
+    DATABASE_URL = os.environ['DATABASE_URL']
     con = None
     try:
         # create a new database connection by calling the connect() function
