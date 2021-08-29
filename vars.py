@@ -2,6 +2,8 @@
 
 GOOGLE_CHROME_PATH = '/app/.apt/usr/bin/google-chrome'
 CHROMEDRIVER_PATH = '/app/.chromedriver/bin/chromedriver'
+#CHROMEDRIVER_PATH = r'C:/Users/unst0/Desktop/chromeDriver/chromedriver.exe' #local path
+#GOOGLE_CHROME_PATH= r'C:/Program Files (x86)/Google/Chrome/Application/chrome.exe' #local path
 
 csvFilePath = r'Data/ID-data.csv'
 jsonFilePath = r'Data/ID-data.json'

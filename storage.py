@@ -26,14 +26,12 @@ def makeJSON(csvFilePath, jsonFilePath):
     with open(jsonFilePath, 'w', encoding='utf-8') as jsonf: 
         jsonf.write(json.dumps(data, indent=4))
 
+def testPostgres():
     # read database connection url from the enivron variable we just set.
     DATABASE_URL = os.environ['DATABASE_URL']
     con = None
     try:
         # create a new database connection by calling the connect() function
-        print("Here is the URL")
-        print(DATABASE_URL)
-        
         con = psycopg2.connect(DATABASE_URL)
 
         #  create a new cursor
