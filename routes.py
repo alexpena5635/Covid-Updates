@@ -10,8 +10,8 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 from seleniumwire import webdriver
 
-
-@vars.app.route('/api/Idaho', methods=['GET']) # Will need to update the call to this from android studio since route changed
+pageID = flask.Blueprint('appID', __name__, template_folder='templates')
+@pageID.route('/api/Idaho', methods=['GET']) # Will need to update the call to this from android studio since route changed
 def getDataID():
     # Chrome options specific to Heroku
     chrome_options = vars.setChromeOptions(Options())

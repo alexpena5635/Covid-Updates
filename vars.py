@@ -2,10 +2,6 @@
 import os
 import flask
 
-# Vars for flask using Heroku
-app = flask.Flask(__name__)
-port = int(os.environ.get("PORT", 5000))
-
 #### For Heroku only
 GOOGLE_CHROME_PATH = '/app/.apt/usr/bin/google-chrome'
 CHROMEDRIVER_PATH = '/app/.chromedriver/bin/chromedriver'
