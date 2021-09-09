@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-local = True
+local = False
 
 if local:
     #CHROMEDRIVER_PATH = r'C:/Users/unst0/Desktop/chromeDriver/chromedriver.exe' #local path laptop
