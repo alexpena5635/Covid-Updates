@@ -1,13 +1,9 @@
 import os
 import psycopg2
-from psycopg2.extras import RealDictCursor
 import csv
-import sys
 import json
 
 from covid_data import CovidData
-
-from flask import jsonify
 
 # Takes a csv file and a primary key within; converts to json
 def makeJSON(csvFilePath, jsonFilePath): 
@@ -33,37 +29,6 @@ def makeJSON(csvFilePath, jsonFilePath):
         jsonf.write(json.dumps(data, indent=4))
     
     return json.dumps(data, indent=4)
-
-def testPostgres():
-    # read database connection url from the enivron variable we just set.
-    DATABASE_URL = os.environ['DATABASE_URL']
-    con = None
-    try:
-        # create a new database connection by calling the connect() function
-        con = psycopg2.connect(DATABASE_URL)
-
-        #  create a new cursor
-        cur = con.cursor()
-        
-        # execute an SQL statement to get the HerokuPostgres database version
-        print('PostgreSQL database version:')
-        cur.execute('SELECT version()')
-
-        # display the PostgreSQL database server version
-        db_version = cur.fetchone()
-        print(db_version)
-        
-        # close the communication with the HerokuPostgres
-        cur.close()
-    except Exception as error:
-        print('Cause: {}'.format(error))
-
-    finally:
-        # close the communication with the database server by calling the close()
-        if con is not None:
-            con.close()
-            print('Database connection closed.')
-
 
 def postgresInsertIdahoData(jsonString):
     # read database connection url from the enivron variable we just set.
@@ -116,12 +81,6 @@ def postgresInsertIdahoData(jsonString):
         if con is not None:
             con.close()
             print('Database connection closed.')
-
-####### Move the call to actually do the whole selenium thing to a seperate function/file?
-####### This will run on a cron job, and only be called once a day at say 6:00 am
-####### That file will update the database
-####### The regular api will only go and get the database itself, it wont query with selenium each time!!!!!!
-####### Once this is in place, it will make subsequent calls to the api much much faster, and stage one of the refactor will be in minumum viable forms
 
 
 def postgresUpdateIdahoData(jsonString):
@@ -184,12 +143,13 @@ def postgresGETIdahoData():
     DATABASE_URL = os.environ['DATABASE_URL']
     con = None
     data = ""
+    counties = []
     try:
         # create a new database connection by calling the connect() function
         con = psycopg2.connect(DATABASE_URL)
 
         #  create a new cursor
-        cur = con.cursor(cursor_factory=RealDictCursor)
+        cur = con.cursor()
 
         sql = """ SELECT * FROM coviddatadb.idaho_data """
             
@@ -198,7 +158,16 @@ def postgresGETIdahoData():
         con.commit()
 
         data = cur.fetchall()
-        #print(data)
+
+        for row in data:
+            #print(row)
+            r = CovidData(*row)
+            counties.append(r)
+            #r.print()
+
+        #for county in counties:
+            #county.print()
+
 
         # close the communication with the HerokuPostgres
         cur.close()
@@ -211,5 +180,15 @@ def postgresGETIdahoData():
             con.close()
             print('Database connection closed.')
 
-    print(json.dumps(data))
-    return json.dumps(data)
+  
+    def obj_dict(obj):
+        return obj.__dict__
+
+    test = str(json.dumps(counties, default=obj_dict))
+    obj = json.loads(test)
+    formatted  = json.dumps(obj, indent=2)
+    print(formatted)
+
+
+    #return json.dumps(counties, default=obj_dict)
+    return formatted
