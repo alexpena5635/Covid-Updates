@@ -396,7 +396,8 @@ public class MainActivity extends AppCompatActivity {
         //final String URL_PREFIX = "https://covidupdatesapi3.herokuapp.com/api/v1/byCounty/";      //on the android emulator, the default localhost refers to the device, and this ip refers to the laptop's localhost
         final String URL_PREFIX = "https://covidupdatesapi3.herokuapp.com/api/";
 
-        String url = URL_PREFIX + state;
+        //String url = URL_PREFIX + state ;
+        String url = URL_PREFIX + state + "/" + county; // Adding extra parameter for new endpoint to get by county specifically
 
         Log.d("reqURL", "The url is --->[" + url + "]");
 
@@ -416,38 +417,13 @@ public class MainActivity extends AppCompatActivity {
                         try {
                             //Takes the response (json) and parses it for the object with the county name
                             //Then sets the confirmed cases and deaths textview in the app, to the values from the api
-                            JSONArray counties = new JSONArray(response);
-                            JSONObject result = null;
-                            for (int i = 0; i < counties.length(); i++) {
-                                try {
 
-                                    JSONObject c = counties.getJSONObject(i);
-                                    //Log.d("Testingggg", "[" + c.getString("county") +  "]" + " ------ Compared to ------- > " + "[" + county + "]");
+                            JSONObject result = new JSONObject(response);
+                            String cases = result.getString("cases");
+                            String deaths = result.getString("deaths");
 
-                                    if (c.getString("county").equals(county)) {
-                                        result = c;
-                                        //Log.d("Response", result.getString("county"));
-                                        break;
-                                    }
-
-                                } catch (JSONException e) {
-                                    continue;
-                                }
-                            }
-
-                            //JSONObject result = new JSONObject(response).getJSONObject(county);
-                            //String cases = result.getString("Confirmed");
-                            //String deaths = result.getString("Deaths");
-                            try {
-                                String cases = result.getString("cases");
-                                String deaths = result.getString("deaths");
-                                covidCasesValue.setText(cases);
-                                covidDeathsValue.setText(deaths);
-                            } catch (NullPointerException e) {
-                                Log.d("Response", e.getMessage());
-                                Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
-                            }
-
+                            covidCasesValue.setText(cases);
+                            covidDeathsValue.setText(deaths);
                             // catch for the JSON parsing error
                             // and catch for "city" not resolving, and "town" instead
                         } catch (JSONException e) {
