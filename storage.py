@@ -187,7 +187,7 @@ def postgresGETIdahoData():
     test = str(json.dumps(counties, default=obj_dict))
     obj = json.loads(test)
     formatted  = json.dumps(obj, indent=2)
-    print(formatted)
+    #print(formatted)
 
 
     #return json.dumps(counties, default=obj_dict)
