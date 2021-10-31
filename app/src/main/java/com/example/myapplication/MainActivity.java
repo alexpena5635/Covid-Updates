@@ -386,9 +386,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //Uses volley to make a request to MY api, with the county attached to it
-    //Currently, I have to run this on my localhost on my desktop, and access it through a specifc IP
-    //from the android studio code bc of the way the emulator works
-    //If I try and do this on my phone, it probably wont work!!!!
     private StringRequest getCovidDataFromCounty(final String state, final String county) {
 
         //final String URL_PREFIX = "http://10.0.2.2:5000/api/v1/byCounty/"; //temporary, should be able to replace with real url once have a server
@@ -439,10 +436,10 @@ public class MainActivity extends AppCompatActivity {
                     public void onErrorResponse(VolleyError error) {
                         // display a simple message on the screen
                         if (error instanceof TimeoutError){
-                            Toast.makeText(getApplicationContext(), "Local COVID API is not responding -- timeout error", Toast.LENGTH_LONG).show();
+                            Toast.makeText(getApplicationContext(), "COVID API Timeout error", Toast.LENGTH_LONG).show();
                         }
                         else {
-                            Toast.makeText(getApplicationContext(), "Local COVID API is not responding", Toast.LENGTH_LONG).show();
+                            Toast.makeText(getApplicationContext(), "COVID API is not responding", Toast.LENGTH_LONG).show();
                         }
 
                     }
