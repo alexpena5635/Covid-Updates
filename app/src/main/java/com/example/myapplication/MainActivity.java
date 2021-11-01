@@ -172,14 +172,6 @@ public class MainActivity extends AppCompatActivity {
             String longitude = "Longitude: " + longitudeVal;
             String latitude = "Latitude: " + latitudeVal;
 
-            /*
-            Toast.makeText(getBaseContext(),
-                    "Location changed: Lat: " + latitudeVal + " Lng: "
-                            + longitudeVal, Toast.LENGTH_SHORT).show();
-
-             */
-
-
             //Clears any prior requests to the Volley queue, and then makes a call to the function
             // to search for a county from coordinates
             queue.cancelAll("CancelTag");
@@ -237,14 +229,32 @@ public class MainActivity extends AppCompatActivity {
                         // try/catch block for returned JSON data
                         Log.d("Response", response);
                         try {
-                            //Finds json object "address" in the query, gets the string "county" and sets the
-                            //county textview to display the county resolved from coords
+                            //Finds json object "address" in the query, gets the string "county" and sets the county textview to display the county resolved from coords
                             JSONObject result = new JSONObject(response).getJSONObject("address");
                             String county = result.getString("county");
-                            String city = result.getString("city");
+                            String city = "";
                             String state = result.getString("state");
+
+                            // Check all possible types of city
+                            String ops[] = {"city", "town", "village", "hamlet"};
+                            for(int i = 0; i < ops.length; i++)
+                            {
+                                if(result.has(ops[i]))
+                                {
+                                    city = result.getString(ops[i]);
+                                    break;
+                                }
+                            }
+
+                            // If not in a city, and no previous
+                            if (city.length() < 1 && cityValue.getText().length() < 1) {
+                                cityValue.setText("Unknown, ");
+                            }
+                            else { // If the city is found
+                                cityValue.setText(city + ", ");
+                            }
+
                             stateValue.setText(state);
-                            cityValue.setText(city + ", ");
                             countyValue.setText(" " + county);
 
                             //Once we know that the county was successfully parsed from the api, we can pass the county into
@@ -261,116 +271,10 @@ public class MainActivity extends AppCompatActivity {
 
                             queue.add(covid_stringRequest);
 
-                            
-                            // Catch for "city" not resolving in the returned json, checking the smaller version "town" instead
-                        } catch (JSONException e) {
-
-                            try {
-                                //Finds json object "address" in the query, gets the string "county" and sets the
-                                //county textview to display the county resolved from coords
-                                // Also sets city to the json "town" instead
-                                JSONObject result = new JSONObject(response).getJSONObject("address");
-                                String county = result.getString("county");
-                                String city = result.getString("town");
-                                String state = result.getString("state");
-                                stateValue.setText(state);
-                                cityValue.setText(city + ", ");
-                                countyValue.setText(" " + county);
-
-                                //Once we know that the county was successfully parsed from the api, we can pass the county into
-                                // the getCovid.. function, which will update the covid data for that county
-                                queue.cancelAll("CancelTag");
-                                StringRequest covid_stringRequest = getCovidDataFromCounty(state, county.substring(0, county.indexOf(" County")));
-                                covid_stringRequest.setTag("CancelTag");
-                                covid_stringRequest.setRetryPolicy(new DefaultRetryPolicy(25000,
-                                        0,
-                                        DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-
-                                queue.add(covid_stringRequest);
-
-                                // Catch for "city" and "town" not resolving, and using "village" instead
-                            } catch (JSONException e2) {
-
-                                try {
-                                    JSONObject result = new JSONObject(response).getJSONObject("address");
-                                    String county = result.getString("county");
-                                    String city = result.getString("village"); //heres the change
-                                    String state = result.getString("state");
-                                    stateValue.setText(state);
-                                    cityValue.setText(city + ", ");
-                                    countyValue.setText(" " + county);
-
-                                    //Once we know that the county was successfully parsed from the api, we can pass the county into
-                                    // the getCovid.. function, which will update the covid data for that county
-                                    queue.cancelAll("CancelTag");//clears any prior requests from the queue
-                                    StringRequest covid_stringRequest = getCovidDataFromCounty(state, county.substring(0, county.indexOf(" County")));
-                                    covid_stringRequest.setTag("CancelTag");
-                                    covid_stringRequest.setRetryPolicy(new DefaultRetryPolicy(25000,
-                                            0,
-                                            DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-
-                                    queue.add(covid_stringRequest);
-
-                                    // catch for the JSON parsing error
-                                    // and catch for "city", "town", "village" not resolving, and using "hamlet" instead
-                                } catch (JSONException e3) {
-
-                                    try {
-                                        JSONObject result = new JSONObject(response).getJSONObject("address");
-                                        String county = result.getString("county");
-                                        String city = result.getString("hamlet"); //heres the change
-                                        String state = result.getString("state");
-                                        stateValue.setText(state);
-                                        cityValue.setText(city + ", ");
-                                        countyValue.setText(" " + county);
-
-                                        //Once we know that the county was successfully parsed from the api, we can pass the county into
-                                        // the getCovid.. function, which will update the covid data for that county
-                                        queue.cancelAll("CancelTag");//clears any prior requests from the queue
-                                        StringRequest covid_stringRequest = getCovidDataFromCounty(state, county.substring(0, county.indexOf(" County")));
-                                        covid_stringRequest.setTag("CancelTag");
-
-                                        covid_stringRequest.setRetryPolicy(new DefaultRetryPolicy(25000,
-                                                0,
-                                                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-
-                                        queue.add(covid_stringRequest);
-
-                                        // Catch for ciy not resolving or any of its smaller versions
-                                    } catch (JSONException e4) {
-                                        try {
-                                            JSONObject result = new JSONObject(response).getJSONObject("address");
-                                            String county = result.getString("county");
-                                            //String city = "(no value)"; //heres the change
-                                            //Here we do not update the city textview, and if it was recently some other city,
-                                            //it stays the same. But if it's the first location to show up, it will say "Unknown"
-                                            String state = result.getString("state");
-                                            stateValue.setText(state);
-                                            if (cityValue.getText().length() <= 0) {
-                                                cityValue.setText("Unknown, ");
-                                            }
-                                            countyValue.setText(" " + county);
-
-
-                                            queue.cancelAll("CancelTag");//clears any prior requests from the queue
-                                            StringRequest covid_stringRequest = getCovidDataFromCounty(state, county.substring(0, county.indexOf(" County")));
-                                            covid_stringRequest.setTag("CancelTag");
-                                            covid_stringRequest.setRetryPolicy(new DefaultRetryPolicy(25000,
-                                                    0,
-                                                    DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-
-                                            queue.add(covid_stringRequest);
-
-                                            // catch for the JSON parsing error
-                                        } catch (JSONException e5) {
-                                            Toast.makeText(getApplicationContext(), e4.getMessage(), Toast.LENGTH_LONG).show();
-                                        }
-                                    }
-
-                                }
-
-                            }
-
+                            // Catch for JSON parsing error
+                        }
+                        catch (JSONException e) {
+                            Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
                         }
                     } // public void onResponse(String response)
                 }, // Response.Listener<String>()
