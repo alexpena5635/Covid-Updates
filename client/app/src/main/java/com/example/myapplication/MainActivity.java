@@ -343,6 +343,7 @@ public class MainActivity extends AppCompatActivity {
                             Toast.makeText(getApplicationContext(), "COVID API Timeout error", Toast.LENGTH_LONG).show();
                         }
                         else {
+                            Log.d("CovidAPI", error.getMessage());
                             Toast.makeText(getApplicationContext(), "COVID API is not responding", Toast.LENGTH_LONG).show();
                         }
 

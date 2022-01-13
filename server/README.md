@@ -1,5 +1,5 @@
 # Covid App
-This is an application that uses a python api and a java android app to create a system of letting the user know the covid data of the current county and state they are in. 
+This is an application that uses a python api and a java android app to create a system of informing the user about the covid data of the current county and state they are located in. 
 
 # Setup
 
