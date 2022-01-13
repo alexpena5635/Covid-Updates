@@ -1,194 +1,205 @@
-import os
 import psycopg2
 import csv
 import json
+import io
 
-from covid_data import CovidData
+from typing import List
 
-# Takes a csv file and a primary key within; converts to json
-def makeJSON(csvFilePath, jsonFilePath): 
-    # create a dictionary 
-    data = {} 
-      
-    # Open a csv reader called DictReader 
-    with open(csvFilePath, encoding='utf-8') as csvf: 
-        csvReader = csv.DictReader(csvf) 
-          
-        # Convert each row into a dictionary  
-        # and add it to data 
-        for rows in csvReader: 
-              
-            # Assuming a column named 'County' to 
-            # be the primary key 
-            key = rows['County'] 
-            data[key] = rows 
-  
-    # Open a json writer, and use the json.dumps()  
-    # function to dump data 
-    with open(jsonFilePath, 'w', encoding='utf-8') as jsonf: 
-        jsonf.write(json.dumps(data, indent=4))
-    
-    return json.dumps(data, indent=4)
 
-def postgresInsertIdahoData(jsonString):
-    # read database connection url from the enivron variable we just set.
-    DATABASE_URL = os.environ['DATABASE_URL']
+from covid_data import CovidData, json_to_covid_data, covid_data_to_json
+from utils import get_config
+
+config = get_config()
+
+# Takes a csv formatted string, and returns json string
+def csv_to_json(csv_string):
+
+    csvReader = csv.DictReader(io.StringIO(csv_string))
+    json_data = json.dumps(list(csvReader))
+
+    return str(json_data)
+
+
+# Opens connection to db, return connection and cursor
+def open_db():
+    # Retreives the postgres DB url from environment variable
+    DATABASE_URL = config["databaseURL"]
     con = None
+
     try:
-        # create a new database connection by calling the connect() function
+        # Create a new database connection by calling the connect() function
         con = psycopg2.connect(DATABASE_URL)
 
-        #  create a new cursor
-        cur = con.cursor()
+    except Exception as error:
+        print("Database Connection Failed - Cause: {}".format(error))
 
-        sql = """ INSERT INTO coviddatadb.idaho_data("Cases", "Deaths", "LastSeven", "Population", "Rate", "County")
-           VALUES (%s, %s, %s, %s, %s, %s) """
+    #  Create a new cursor
+    cur = con.cursor()
 
-        County = Cases = Deaths = LastSeven = Population = Rate = ""
-        jsonObject = json.loads(jsonString)
-        for object in jsonObject:
-            value = jsonObject[object]
-            
-            County = Cases = Deaths = LastSeven = Population = Rate = ""
-            for key in value:
-               if(key == "County"):
-                  County = value[key]
-               elif(key == "Confirmed"):
-                   Cases = value[key]
-               elif(key == "Deaths"):
-                   Deaths = value[key]
-               elif(key == "LastSeven"):
-                   LastSeven = value[key]
-               elif(key == "Population"):
-                   Population = value[key]
-               elif(key == "Rate"):
-                   Rate = value[key]
+    return con, cur
 
-               #print("The key and value are ({}) = ({})".format(key, value[key]))
-            
-            cur.execute(sql, (Cases, Deaths, LastSeven, Population, Rate, County,))
-    
 
+# Takes in a postgres DB connection and cursor, closes the connetion
+def close_db(con, cur):
+    try:
+        # Commit any changes made by the current connection
         con.commit()
 
-        # close the communication with the HerokuPostgres
+        # Close the communication with the HerokuPostgres db
         cur.close()
     except Exception as error:
-        print('Cause: {}'.format(error))
+        print("Cause: {}".format(error))
 
-    finally:
-        # close the communication with the database server by calling the close()
-        if con is not None:
-            con.close()
-            print('Database connection closed.')
+    # Close the communication with the server
+    if con is not None:
+        con.close()
+        print("Database connection succesfully closed.")
 
 
-def postgresUpdateIdahoData(jsonString):
-    # read database connection url from the enivron variable we just set.
-    DATABASE_URL = os.environ['DATABASE_URL']
-    con = None
+# Inserts a string of all county data for the given state into the database
+def insert_state_data(state: str, counties_data: str):
+    # Open the connection to the database
+    con, cur = open_db()
     try:
-        # create a new database connection by calling the connect() function
-        con = psycopg2.connect(DATABASE_URL)
+        sql = """ INSERT INTO coviddatadb.covid_data(state, county, population, cases, deaths, last_seven, rate)
+                VALUES (%s, %s, %s, %s, %s, %s, %s) """
 
-        #  create a new cursor
-        cur = con.cursor()
+        # Convert the json formatted counties into CovidData objects
+        counties = json_to_covid_data(state, counties_data)
 
-        sql = """ UPDATE coviddatadb.idaho_data
-                SET "Cases" = %s, "Deaths" = %s, "LastSeven" = %s, "Population" = %s, "Rate" = %s
-                WHERE "County" = %s
+        # Add each county to the database
+        # *county unpacks it into all of its members/arguments
+        for county in counties:
+            cur.execute(
+                sql,
+                (
+                    state,
+                    county.county,
+                    county.population,
+                    county.cases,
+                    county.deaths,
+                    county.last_seven,
+                    county.rate,
+                ),
+            )
+
+    except Exception as error:
+        print("Cause: {}".format(error))
+
+    # Close the connection to the database
+    close_db(con, cur)
+
+
+# Update all counties for the given state in the database
+def update_state_data(state: str, counties_data: str):
+    # Open the connection to the database
+    con, cur = open_db()
+    try:
+        sql = """ UPDATE coviddatadb.covid_data
+                SET population = %s, cases = %s, deaths = %s, last_seven = %s, rate = %s
+                WHERE state = %s AND county = %s
             """
 
-        County = Cases = Deaths = LastSeven = Population = Rate = ""
-        jsonObject = json.loads(jsonString)
-        for object in jsonObject:
-            value = jsonObject[object]
-            
-            County = Cases = Deaths = LastSeven = Population = Rate = ""
-            for key in value:
-               if(key == "County"):
-                  County = value[key]
-               elif(key == "Confirmed"):
-                   Cases = value[key]
-               elif(key == "Deaths"):
-                   Deaths = value[key]
-               elif(key == "LastSeven"):
-                   LastSeven = value[key]
-               elif(key == "Population"):
-                   Population = value[key]
-               elif(key == "Rate"):
-                   Rate = value[key]
+        # Convert the json formatted string of counties into a list of CovidData objects
+        counties = json_to_covid_data(state, counties_data)
 
-               #print("The key and value are ({}) = ({})".format(key, value[key]))
-            
-            cur.execute(sql, (Cases, Deaths, LastSeven, Population, Rate, County,))
-    
+        # Update each county's fields in the database
+        for county in counties:
+            cur.execute(
+                sql,
+                (
+                    county.population,
+                    county.cases,
+                    county.deaths,
+                    county.last_seven,
+                    county.rate,
+                    county.state,
+                    county.county,
+                ),
+            )
 
-        con.commit()
-
-        # close the communication with the HerokuPostgres
-        cur.close()
     except Exception as error:
-        print('Cause: {}'.format(error))
+        print("Cause: {}".format(error))
 
-    finally:
-        # close the communication with the database server by calling the close()
-        if con is not None:
-            con.close()
-            print('Database connection closed.')
+    # Close the connection to the database
+    close_db(con, cur)
 
 
-def postgresGETIdahoData():
-    # read database connection url from the enivron variable we just set.
-    DATABASE_URL = os.environ['DATABASE_URL']
-    con = None
-    data = ""
-    counties = []
+# Get all county data for the state, and return it
+def get_state_data(state):
+    # Open connection to the database
+    con, cur = open_db()
+    counties: List[CovidData] = []
+
+    # Convert the state string to only the first letter uppercase, as is needed in the database
+    state = state.title()
     try:
-        # create a new database connection by calling the connect() function
-        con = psycopg2.connect(DATABASE_URL)
+        sql = """ SELECT * FROM coviddatadb.covid_data 
+                WHERE state = %s
+                ORDER BY county """
 
-        #  create a new cursor
-        cur = con.cursor()
+        cur.execute(sql, (state,))
 
-        sql = """ SELECT * FROM coviddatadb.idaho_data """
-            
-        cur.execute(sql)
-    
-        con.commit()
-
+        # Get all rows from the query
         data = cur.fetchall()
 
+        # Loop through each row/county and init a CovidData object with its data
+        #  Then append it to the list of counties
         for row in data:
-            #print(row)
             r = CovidData(*row)
             counties.append(r)
-            #r.print()
 
-        #for county in counties:
-            #county.print()
-
-
-        # close the communication with the HerokuPostgres
-        cur.close()
     except Exception as error:
-        print('Cause: {}'.format(error))
+        print("Cause: {}".format(error))
 
-    finally:
-        # close the communication with the database server by calling the close()
-        if con is not None:
-            con.close()
-            print('Database connection closed.')
+    if not counties:
+        return "No data found for state: " + state
 
-  
-    def obj_dict(obj):
-        return obj.__dict__
+    # Reformatting the list of data for each county into a json formatted string
+    counties_json = covid_data_to_json(counties)
 
-    test = str(json.dumps(counties, default=obj_dict))
-    obj = json.loads(test)
-    formatted  = json.dumps(obj, indent=2)
-    #print(formatted)
+    # Close the connection to the database
+    close_db(con, cur)
+
+    return counties_json
 
 
-    #return json.dumps(counties, default=obj_dict)
-    return formatted
+# Get specifc county data for a state, and return it
+def get_county_data(state, county):
+    # Open connection to the database
+    con, cur = open_db()
+
+    # Convert the state and county strings to only the first letter uppercase, as is needed in the database
+    state = state.title()
+    county = county.title()
+    try:
+        sql = """ SELECT * FROM coviddatadb.covid_data
+                WHERE state = %s AND county = %s """
+
+        cur.execute(
+            sql,
+            (
+                state,
+                county,
+            ),
+        )
+
+        # Get row from the query
+        data = cur.fetchone()
+
+        # Unpack the covid data in the row into a CovidData object and initialize it
+        county = CovidData(*data)
+
+    except Exception as error:
+        print("Cause: {}".format(error))
+
+    if not county:
+        return "No data found for state, county: " + state + ", " + county
+
+    # Reformatting the list of data for each county into json formatted string
+    county_json = covid_data_to_json(county)
+
+    # Close the connection to the database
+    close_db(con, cur)
+
+    return county_json
