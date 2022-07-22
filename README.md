@@ -19,13 +19,11 @@
 -->
 [![LinkedIn][linkedin-shield]][linkedin-url]
 
-
-
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
   <a href="https://github.com/alexpena5635/COVID-Updates">
-    <img src="images/COVID-19 Updates.png" alt="Logo" width="80" height="80">
+    <img src="images/COVIDUpdates.png" alt="Logo" width="80" height="80">
   </a>
 
 <h1 align="center">COVID-19 Updates App</h1>
@@ -38,13 +36,16 @@
   </p>
 </div>
 
-
 <a href="#demo">Demo</a>
-
 <br>
 
-## ***This readme is WIP***
-<br>
+
+# Built With
+
+### **Server** : Python, Flask, PostgreSQL, Heroku
+### **Client** : Java, Android Studio
+
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 <!-- ABOUT THE PROJECT -->
 # About The Project
@@ -122,30 +123,20 @@ The JSON response from the server is then parsed through, and the data is displa
 <br>
 
 ### **App screenshot - Ada County Location**
-<img src="images/AppScreenshot.png" alt="Demo" width="400" height="620">
+<img src="images/AppScreenshot.png" alt="Demo" width="auto" height="800">
 
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-
-# Built With
-
-### **Server** : Python, Flask, PostgreSQL, Heroku
-### **Client** : Java, Android Studio
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 # Demo
 
-<img src="" alt="Demo" width="600" height="480">
-    
+<img src="images/CovidUpdatesDemo.gif" alt="Demo" width="auto" height="auto">
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
 <!-- CONTACT -->
 # Contact
-
 
 ### Alex Peña - alexpena5635@gmail.com
 
