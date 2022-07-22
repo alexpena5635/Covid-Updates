@@ -39,7 +39,7 @@
 </div>
 
 
-<a href="#images">Images</a>
+<a href="#demo">Demo</a>
 
 <br>
 
