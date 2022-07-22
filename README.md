@@ -130,7 +130,11 @@ The JSON response from the server is then parsed through, and the data is displa
 
 # Demo
 
-<img src="images/CovidUpdatesDemo.gif" alt="Demo" width="auto" height="auto">
+<a href="https://youtu.be/KLJUa5kn6_U" class="image fit thumb" target="_blank" rel="noopener noreferrer">
+  <img src="images/CovidUpdatesDemo.gif" alt="Demo" width="auto" height="auto">
+</a>
+
+### *Click on gif for link to full size video*
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
