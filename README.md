@@ -24,15 +24,15 @@
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
-  <a href="https://github.com/alexpena5635/Covid-Updates">
-    <img src="images/Covid-19 Updates.png" alt="Logo" width="80" height="80">
+  <a href="https://github.com/alexpena5635/COVID-Updates">
+    <img src="images/COVID-19 Updates.png" alt="Logo" width="80" height="80">
   </a>
 
 <h1 align="center">COVID-19 Updates App</h1>
 
   <p align="center">
     Application that allows users from Idaho, Oregon, and Washington to view COVID-19 data based on the county their device is located in.
-    Backend API built with Python, Flask, PostgreSQL, and Heroki. Android application built with Android Studio and Java. 
+    Backend API built with Python, Flask, PostgreSQL, and Heroku. Android application built with Android Studio and Java. 
     <br />
     <br />
   </p>
@@ -41,6 +41,9 @@
 
 <a href="#images">Images</a>
 
+<br>
+
+## ***This readme is WIP***
 <br>
 
 <!-- ABOUT THE PROJECT -->
@@ -53,25 +56,73 @@ Application consisting of a backend server and an Android App. As a whole, the a
 The backend Python server has two main utilities. 
 
 First, once a day the python server scrapes each states' website for COVID-19 data. This data is mutated into a common form, and then sent to the Postgres database. 
-Second, the Python server then has a public facing API. Users can hit the endpoint and query the database for COVID-19 data for a whole state, or state and county. The resulting data is then returned to the user in JSON format. 
+Second, the Python server then has a public facing API. Users can hit the endpoint(s) and query the database for COVID-19 data for a whole state, or state and county. The resulting data is then returned to the user in JSON format. 
 
-State: `myapi/Idaho`
-<br>
-State and County  - `myapi/Idaho/ada`
+The python server is hosted on the cloud provider Heroku, providing a public API. 
 
-The python server is hosted on the cloud provider Heroku, allowing for the public API. 
-<br><br>
+
+### State: **api/Idaho**
+
+    [ 
+      { 
+          "state":"Idaho", 
+          "county":"Ada", 
+          "cases":69594, 
+          "deaths":773, 
+          "last_seven":33.6, 
+          "population":494399, 
+          "rate":16400.114077901 
+      }, 
+      { 
+          "state":"Idaho", 
+          "county":"Adams", 
+          "cases":423, 
+          "deaths":12, 
+          "last_seven":33.3, 
+          "population":4447, 
+          "rate":11828.198785698 
+      }, 
+      ...
+      ...
+      ...
+      {
+          "state":"Idaho",
+          "county":"Washington",
+          "cases":1257,
+          "deaths":46,
+          "last_seven":40.6,
+          "population":10360,
+          "rate":18069.498069498
+      }
+    ]
+
+
+
+### State and County: **api/Idaho/Ada**
+
+    [ 
+      { 
+          "state":"Idaho", 
+          "county":"Ada", 
+          "cases":69594, 
+          "deaths":773, 
+          "last_seven":33.6, 
+          "population":494399, 
+          "rate":16400.114077901 
+      }
+    ]
 
 ### Application
 The Android application built with Java runs through multiple steps when launched. 
 
-The gps coordinates of a user's phone are retrieved, and sent to the [Nomatim API](https://nominatim.org/release-docs/latest/api/Overview/) to lookup the corresponding state and county. The data is sent back as a JSON response, and is parsed in the app. Once the state and county are extracted, then these are combined with the server URL to hit the API endpoint
-
-`myapi/Idaho/ada`
+The gps coordinates of a user's phone are retrieved, and sent to the [Nomatim API](https://nominatim.org/release-docs/latest/api/Overview/) to lookup the corresponding state and county. The data is sent back as a JSON response, and is parsed in the app. Once the state and county are extracted, then these are combined with the server URL to hit the API endpoint (`api/Idaho/ada`).
 
 The JSON response from the server is then parsed through, and the data is displayed on screen, along with the current location. 
 
-## **PICTURE HERE**
+<br>
+
+### **App screenshot - Ada County Location**
+<img src="images/AppScreenshot.png" alt="Demo" width="400" height="620">
 
 
 <p align="right">(<a href="#top">back to top</a>)</p>
@@ -86,8 +137,7 @@ The JSON response from the server is then parsed through, and the data is displa
 
 # Demo
 
-## Process of Building Rubiks Grid
-<img src="RubiksCube.gif" alt="Logo" width="600" height="480">
+<img src="" alt="Demo" width="600" height="480">
     
 
 <p align="right">(<a href="#top">back to top</a>)</p>
@@ -99,7 +149,7 @@ The JSON response from the server is then parsed through, and the data is displa
 
 ### Alex Peña - alexpena5635@gmail.com
 
-### Project Link: [https://github.com/alexpena5635/Covid-Updates](https://github.com/alexpena5635/Covid-Updates)
+### Project Link: [https://github.com/alexpena5635/COVID-Updates](https://github.com/alexpena5635/COVID-Updates)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
