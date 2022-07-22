@@ -8,7 +8,7 @@ This is an application that uses a python api and a java android app to create a
 
 To setup this app to run in production mode on the heroku server, follow all the neccesary heroku steps first.
 
-Then, **env** in *config.json* should be set to **prod**. 
+Then, **env** in *config.json* should be set to **prod**..
 
 *Procfile*
 web: gunicorn -t 45 app:app
