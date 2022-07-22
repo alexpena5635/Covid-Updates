@@ -36,7 +36,7 @@
   </p>
 </div>
 
-<a href="#demo">Demo</a>
+<a href="https://youtu.be/KLJUa5kn6_U" class="image fit thumb" target="_blank" rel="noopener noreferrer">Demo</a>
 <br>
 
 
