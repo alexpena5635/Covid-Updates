@@ -56,11 +56,10 @@ Application consisting of a backend server and an Android App. As a whole, the a
 ### Server
 The backend Python server has two main utilities. 
 
-First, once a day the python server scrapes each states' website for COVID-19 data. This data is mutated into a common form, and then sent to the Postgres database. 
-Second, the Python server then has a public facing API. Users can hit the endpoint(s) and query the database for COVID-19 data for a whole state, or state and county. The resulting data is then returned to the user in JSON format. 
+First, once a day the python server scrapes each state's website for COVID-19 data. This data is mutated into a common form and then sent to the Postgres database. 
+Second, the Python server then has a public-facing API. Users can hit the endpoint(s) and query the database for COVID-19 data for a whole state, or state and county. The resulting data is then returned to the user in JSON format. 
 
 The python server is hosted on the cloud provider Heroku, providing a public API. 
-
 
 ### State: **api/Idaho**
 
@@ -116,9 +115,9 @@ The python server is hosted on the cloud provider Heroku, providing a public API
 ### Application
 The Android application built with Java runs through multiple steps when launched. 
 
-The gps coordinates of a user's phone are retrieved, and sent to the [Nomatim API](https://nominatim.org/release-docs/latest/api/Overview/) to lookup the corresponding state and county. The data is sent back as a JSON response, and is parsed in the app. Once the state and county are extracted, then these are combined with the server URL to hit the API endpoint (`api/Idaho/ada`).
+The GPS coordinates of a user's phone are retrieved and sent to the [Nomatim API](https://nominatim.org/release-docs/latest/api/Overview/) to look up the corresponding state and county. The data is sent back as a JSON response and is parsed in the app. Once the state and county are extracted, then these are combined with the server URL to hit the API endpoint (`api/Idaho/ada`).
 
-The JSON response from the server is then parsed through, and the data is displayed on screen, along with the current location. 
+The JSON response from the server is then parsed through, and the data is displayed on the screen, along with the current location. 
 
 <br>
 
